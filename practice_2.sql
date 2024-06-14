@@ -21,3 +21,23 @@ SELECT candidate_id FROM candidates
   GROUP BY candidate_id 
   HAVING COUNT(skill) = 3;
 
+---Ex6: datalemur-verage-post-hiatus-1.
+SELECT * FROM ( 
+  SELECT user_id,
+    EXTRACT(DAY FROM MAX(post_date)- MIN(post_date)) AS days_between 
+  FROM posts 
+    where EXTRACT(YEAR FROM post_date)='2021' 
+    GROUP BY user_id )A 
+WHERE days_between>0
+
+
+--Ex7: datalemur-cards-issued-difference.
+SELECT * from (
+  select card_name,
+    (max(issued_amount) - min(issued_amount)) as difference
+  from monthly_cards_issued
+  GROUP BY card_name )A
+order by difference DESC
+
+--Ex8: datalemur-non-profitable-drugs.
+
