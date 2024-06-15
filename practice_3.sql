@@ -20,3 +20,28 @@ from (
   order by sum(total_sales) desc
 )A
 
+--Ex4: avg-review-ratings.
+SELECT 
+  extract(month from submit_date) as mth,
+  product_id product, 
+  round(avg(stars), 2) avg_stars
+FROM reviews
+group by mth, product_id
+order by mth, product_id
+
+--Ex5: teams-power-users.
+SELECT sender_id, 
+  count(message_id) as count_messages
+FROM messages
+where extract (year from sent_date) = 2022 and extract(month from sent_date) = 8
+group by sender_id
+order by count(message_id) desc
+limit 2
+
+--Ex6: invalid-tweets.
+select 
+    tweet_id
+from Tweets
+where length(content) > 15
+
+
