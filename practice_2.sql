@@ -40,4 +40,36 @@ SELECT * from (
 order by difference DESC
 
 --Ex8: datalemur-non-profitable-drugs.
+Select manufacturer, drug_count, ABS(revenue-costs) as total_loss from (
+  select manufacturer,
+  count(drug) as drug_count,
+  sum(total_sales) as revenue,
+  sum(cogs) as costs
+  from pharmacy_sales
+  where total_sales < cogs
+  GROUP BY manufacturer
+)A
+order by total_loss desc
 
+--Ex9: leetcode-not-boring-movies.
+select * from Cinema
+    where id % 2 = 1 and description != 'boring'
+    order by rating desc;
+
+--Ex10: leetcode-number-of-unique-subject.
+select teacher_id,
+    count(distinct subject_id) as cnt
+    from Teacher
+group by teacher_id
+
+--Ex11: leetcode-find-followers-count.
+Select user_id,
+    count(follower_id) as followers_count
+from Followers 
+group by user_id
+order by user_id
+
+--Ex12: leetcode-classes-more-than-5-students.
+select class from Courses
+group by class
+having count(student) >=5
