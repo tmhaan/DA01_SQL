@@ -44,4 +44,29 @@ select
 from Tweets
 where length(content) > 15
 
+--Ex7: user-activity-for-the-past-30-days.
+select activity_date as day,
+    count(distinct user_id) as active_users
+from Activity
+where activity_date between '2019-06-28' and '2019-07-27'
+group by activity_date
+having count(activity_type) > 0
 
+--Ex8: number-of-hires-during-specific-time-period.
+select extract(month from joining_date) as month,
+    count(id)
+from employees
+where extract( year from joining_date) = '2022' and extract(month from joining_date) between '1' and '7'
+group by month
+
+--Ex9: positions-of-letter-a.
+select 
+    position ('a' in first_name) as position_a
+from worker
+where first_name = 'Amitah'
+
+--Ex10: macedonian-vintages.
+select title, 
+    substring(title, (position (' ' in title) + 1), 4)::numeric as year
+from winemag_p2
+where country = 'Macedonia'
