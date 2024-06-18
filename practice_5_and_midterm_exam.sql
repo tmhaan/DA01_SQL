@@ -67,10 +67,12 @@ having(count(pl.user_id)) = 0
 order by p.page_id
 
 -- Mid-term Exam Q1
+-- Replacement_cost thap nhat la 9.99
 select distinct(replacement_cost) from film
 order by replacement_cost
 
 -- Mid-term Exam Q2
+-- Co 514 phim co replacement_cost thap 9.99-19.99
 select 
 	sum(case when replacement_cost between 9.99 and 19.99 then 1 end) as low,
 	sum(case when replacement_cost between 20.00 and 24.99 then 1 end) as medium,
@@ -78,6 +80,7 @@ select
 	from film
 
 -- Mid-term Exam Q3
+-- phim co do dai dai nhat co 184 phut thuoc the loai sport
 select f.title, f.length, c.name as category_name from film f
 left join film_category fc on f.film_id = fc.film_id
 left join category as c on fc.category_id = c.category_id
@@ -85,6 +88,7 @@ where c.name = 'Drama' or c.name = 'Sports'
 order by f.length desc
 
 --Mid-term Exam Q4
+--The loai co nhieu phim nhat la sport, co 74 phim
 select c.name as category, 
 	count(f.title) as so_luong_film
 	from film f
@@ -94,6 +98,7 @@ group by c.name
 order by so_luong_film
 
 --Mid-term Exam Q5
+--Susan Davis la dien vien dong nhieu phim nhat - 54 phim
 select a.last_name, a.first_name, 
 	count(f.title) as so_luong_film
 	from film f
@@ -103,6 +108,31 @@ group by a.last_name, a.first_name
 order by so_luong_film
 
 --Mid-term Exam Q6
+-- Co 4 bo phim khong co lien quan gi voi khach hang
 select a.address from address a
 left join customer c on a.address_id = c.address_id
 where c.customer_id is null
+
+--Mid-term Exam Q7
+-- Cape Coral co tong doanh thu cao nhat voi 221.55
+select  city.city as city,
+	sum(p.amount) as payment
+from payment p
+left join customer c on p.customer_id = c.customer_id
+left join address a on c.address_id = a.address_id  
+left join city on a.city_id = city.city_id
+group by city
+order by payment desc
+
+--Mid-term Exam Q8
+-- thanh pho co doanh thu thap nhat la Tallahassee, United States - 50.85
+-- thanh pho co doanh thu cao nhat la Cape Coral, United States - 221.55
+select city.city || ', ' || country.country as name,
+	sum(p.amount) as payment
+from payment p
+left join customer c on p.customer_id = c.customer_id
+left join address a on c.address_id = a.address_id  
+left join city on a.city_id = city.city_id
+left join country on city.country_id = country.country_id
+group by city.city, country.country
+order by payment desc
