@@ -97,3 +97,10 @@ SELECT c.title AS movie_name, AVG(d.rating) AS rate FROM MovieRating AS d
 ) second_query;
 
 --ex12: leetcode-who-has-the-most-friends.
+select id, count(*) num from
+(
+    (select requester_id id from RequestAccepted)
+    union all
+    (select accepter_id id from RequestAccepted)
+) as A
+group by id order by num desc limit 1;
