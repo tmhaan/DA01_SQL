@@ -52,21 +52,48 @@ from Transactions
 group by country, month
 
 --ex7: leetcode-product-sales-analysis.
+SELECT product_id, year AS first_year, quantity, price 
+FROM sales
+WHERE (product_id, year) IN (
+    SELECT product_id, MIN(year) 
+    FROM sales 
+    GROUP BY product_id
+);
 
-With a as
-(select product_id, year, quantity, price,
-    row_number () over (partition by product_id order by year) as year_num
-    from sales 
-),
-c as
-(select b.product_id, a.year as first_year, a.quantity, a.price from Product as b
-left join a on b.product_id = a.product_id
-where a.year_num = 1)
-
-Select distinct Sales.product_id, c.first_year, c.quantity, c. price from sales
-left join c on Sales.product_id = c.product_id
 --ex8: leetcode-customers-who-bought-all-product+/mns.
+select customer_id from Customer 
+group by customer_id
+having count(distinct product_key) = (select count(product_key) from Product)
+
 --ex9: leetcode-employees-whose-manager-left-thenb -company.
+select employee_id from Employees
+where salary < 30000 and manager_id not in (select employee_id from employees)
+order by employee_id
+
 --ex10: leetcode-primary-department-for-each-employee.
+select count(company_id) as duplicate_companies from (select 
+  company_id from job_listings
+  group by company_id, title
+  having count(company_id) > 1 and count(title)>1)A
+  
 --ex11: leetcode-movie-rating.
+SELECT user_name AS results FROM
+(
+SELECT a.name AS user_name, COUNT(*) AS counts FROM MovieRating AS b
+    JOIN Users AS a
+    on a.user_id = b.user_id
+    GROUP BY b.user_id
+    ORDER BY counts DESC, user_name ASC LIMIT 1
+) first_query
+UNION ALL
+SELECT movie_name AS results FROM
+(
+SELECT c.title AS movie_name, AVG(d.rating) AS rate FROM MovieRating AS d
+    JOIN Movies AS c
+    on c.movie_id = d.movie_id
+    WHERE substr(d.created_at, 1, 7) = '2020-02'
+    GROUP BY d.movie_id
+    ORDER BY rate DESC, movie_name ASC LIMIT 1
+) second_query;
+
 --ex12: leetcode-who-has-the-most-friends.
