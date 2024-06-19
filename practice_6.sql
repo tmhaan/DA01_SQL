@@ -28,10 +28,45 @@ group by p.page_id
 having count(pl.liked_date) = 0
 
 --ex5: datalemur-user-retention.
+With a as
+(SELECT distinct user_id as user_id FROM user_actions
+  where event_date between '06-01-2022' and '06-30-2022'),
+b as 
+(select extract(month from event_date) as month,
+case when user_id in (select user_id from a) then user_id end as user_id
+from user_actions
+where event_date between '07-01-2022' and '07-31-2022')
+ 
+select month, count(distinct user_id) as monthly_active_users from b
+group by month
+  
 --ex6: leetcode-monthly-transactions.
+select 
+    date_format(trans_date, '%Y-%m') as month,
+    country, 
+    count(id) as trans_count,
+    sum(case when state = 'approved' then 1 else 0 end) as approved_count,
+    sum(amount) as trans_total_amount,
+    sum(case when state = 'approved' then amount else 0 end) as approved_total_amount
+from Transactions
+group by country, month
+
 --ex7: leetcode-product-sales-analysis.
---ex8: leetcode-customers-who-bought-all-products.
---ex9: leetcode-employees-whose-manager-left-the-company.
+
+With a as
+(select product_id, year, quantity, price,
+    row_number () over (partition by product_id order by year) as year_num
+    from sales 
+),
+c as
+(select b.product_id, a.year as first_year, a.quantity, a.price from Product as b
+left join a on b.product_id = a.product_id
+where a.year_num = 1)
+
+Select distinct Sales.product_id, c.first_year, c.quantity, c. price from sales
+left join c on Sales.product_id = c.product_id
+--ex8: leetcode-customers-who-bought-all-product+/mns.
+--ex9: leetcode-employees-whose-manager-left-thenb -company.
 --ex10: leetcode-primary-department-for-each-employee.
 --ex11: leetcode-movie-rating.
 --ex12: leetcode-who-has-the-most-friends.
