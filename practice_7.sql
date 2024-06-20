@@ -66,4 +66,23 @@ select count(*) as payment_count from a
 where flag < 10
 
 --ex7: datalemur-highest-grossing.
+SELECT category, product, total_spend from 
+  (select category, product,
+  sum(spend) as total_spend,
+  row_number() over (partition by category order by sum(spend) desc) as row_num
+  FROM product_spend
+  where extract(year from transaction_date) = '2022'
+  group by category, product)A
+where row_num <= 2
+order by category, total_spend desc
+
 --ex8: datalemur-top-fans-rank.
+SELECT * from 
+  (select a.artist_name, 
+  dense_rank () over (order by count(sr.song_id)desc) as artist_rank 
+  FROM global_song_rank sr
+  left join songs s on sr.song_id = s.song_id
+  left join artists a on s.artist_id = a.artist_id
+  where rank <=10 
+  group by a.artist_name)A
+where artist_rank <=5
