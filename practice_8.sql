@@ -76,3 +76,14 @@ from Queue)A
 where total_weight <= 1000
 
 --ex8: leetcode-product-price-at-a-given-date.
+with a as
+(select product_id, 
+case when change_date <= '2019-08-16' then max(new_price) else 10 end as price
+from Products
+where change_date <= '2019-08-16'
+group by product_id)
+
+select Products.product_id, coalesce(price, 10) as price from Products
+left join a on Products.product_id = a.product_id
+group by product_id 
+
