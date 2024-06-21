@@ -42,12 +42,37 @@ SELECT * from (select
          SUM(total_amount) OVER (ORDER BY visited_on ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) AS amount,
          ROUND(AVG(total_amount) OVER (ORDER BY visited_on ROWS BETWEEN 6 PRECEDING AND CURRENT ROW), 2) AS average_amount
     FROM a)A
-    where visited_on >= min(visited_on) + 6
+    where visited_on >= (select min(visited_on) + 6 from a)
     order by visited_on
 
 --ex5: leetcode-investments-in-2016.
+with a as (select pid, tiv_2015 from Insurance 
+group by tiv_2015
+having count(tiv_2015) > 1)
+
+select round(sum(tiv_2016),2) as tiv_2016 from 
+(select pid, tiv_2015, tiv_2016, lat, lon  from Insurance 
+group by lat, lon 
+having count(lat) = 1)A
+where tiv_2015 in (select tiv_2015 from a)
 
 --ex6: leetcode-department-top-three-salaries.
+With a as
+(select id, 
+dense_rank() over (partition by departmentId order by salary desc) as ranking 
+from Employee)
+
+select Department.name as Department, Employee.name as Employee, salary as Salary 
+from Employee 
+left join Department on Employee.departmentId = Department.id
+left join a on Employee.id = a.id
+where ranking <= 3
 
 --ex7: leetcode-last-person-to-fit-in-the-bus.
+select distinct first_value(person_name) over (order by turn desc) as person_name from 
+(select person_name, weight, turn,
+sum(weight) over (order by turn rows between unbounded preceding and current row) as total_weight
+from Queue)A
+where total_weight <= 1000
+
 --ex8: leetcode-product-price-at-a-given-date.
