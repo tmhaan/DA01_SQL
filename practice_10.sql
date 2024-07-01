@@ -78,3 +78,9 @@ select * from
   from b
   order by nam, thang, ranking_per_month)c
 where ranking_per_month <= 5
+
+---Q5: 
+select date(created_at) as dates, category, sum(sale_price) as revenue from bigquery-public-data.thelook_ecommerce.order_items y
+left join bigquery-public-data.thelook_ecommerce.products x on y.product_id = x.id
+group by dates, category
+order by dates, category
