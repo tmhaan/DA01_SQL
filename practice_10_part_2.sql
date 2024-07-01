@@ -1,3 +1,7 @@
+select * from bigquery-public-data.thelook_ecommerce.orders
+select * from bigquery-public-data.thelook_ecommerce.order_items
+select * from bigquery-public-data.thelook_ecommerce.products
+
 With input as  
 (select  
   format_date('%E4Y-%m', y.created_at) as Month, 
