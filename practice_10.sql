@@ -53,7 +53,7 @@ where tags is not null
 order by gender, age
 
 ---Q4: 
-with a as 
+with getting_data as 
 (select product_id, x.name as product_name, x.cost, sale_price,
         extract(year from y.created_at) as nam, 
         extract(month from y.created_at) as thang, 
@@ -62,25 +62,28 @@ with a as
 left join bigquery-public-data.thelook_ecommerce.products as x on y.product_id = x.id
 where status = 'Complete'),
 
-b as 
+calculation as 
 (select  complete_date as month_year, nam, thang,
         product_id, 
         product_name, 
         round(sum(sale_price),2) as sales, 
         round(sum(cost),2) as cost,
         round((sum(sale_price) - sum(cost)),2) as profit, 
-        from a
+        from getting_data
         group by complete_date, nam, thang, product_id, product_name)
 
 select * from
   (select month_year, product_id, product_name, sales, cost, profit, 
           dense_rank() over (partition by nam, thang order by profit desc) as ranking_per_month
-  from b
+  from calculation
   order by nam, thang, ranking_per_month)c
 where ranking_per_month <= 5
 
 ---Q5: 
-select date(created_at) as dates, category, sum(sale_price) as revenue from bigquery-public-data.thelook_ecommerce.order_items y
+select  date(created_at) as dates, category, 
+        sum(sale_price) as revenue 
+        from bigquery-public-data.thelook_ecommerce.order_items y
 left join bigquery-public-data.thelook_ecommerce.products x on y.product_id = x.id
+where created_at between '2022-01-15' and '2022-04-15'
 group by dates, category
 order by dates, category
