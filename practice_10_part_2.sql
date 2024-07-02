@@ -1,7 +1,3 @@
-select * from bigquery-public-data.thelook_ecommerce.orders
-select * from bigquery-public-data.thelook_ecommerce.order_items
-select * from bigquery-public-data.thelook_ecommerce.products
-
 With input as  
 (select  
   format_date('%E4Y-%m', y.created_at) as Month, 
@@ -20,7 +16,6 @@ order by Year, Month)
 select *, round((Total_profit / Total_cost),2) as Profit_to_cost_ratio from (
 Select Month, Year, Product_category, 
        round(TPV,2) as TPV, 
-       lag(TPV) over (partition by Product_category order by Year, Month) as prev,
        TPO,
        round(((TPV - lag(TPV) over (partition by Product_category order by Year, Month))*100/lag(TPV) over (partition by Product_category order by Month)),2) as Revenue_growth,
        round(((TPO - lag(TPO) over (partition by Product_category order by Year, Month))*100/lag(TPO) over (partition by Product_category order by Month)),2) as Order_growth,
