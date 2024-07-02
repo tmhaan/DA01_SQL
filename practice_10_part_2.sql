@@ -1,3 +1,4 @@
+--- Creating the required dataset as metrics
 With input as  
 (select  
   format_date('%E4Y-%m', y.created_at) as Month, 
@@ -25,11 +26,11 @@ Select Month, Year, Product_category,
   order by Year, Month)
 
 
-
--- Step 1: Get the first order date for each user
-WITH a as (
+---creating the metrics for customer retention cohort chart 
+with a as (
      select user_id, date(created_at) as tg
      from bigquery-public-data.thelook_ecommerce.orders
+     where status = 'Complete'
 ),
 
 b as (
@@ -39,28 +40,22 @@ b as (
      group by user_id
 ),
 
-
--- Step 3: Calculate the number of users who return in subsequent periods
-retention AS (
-  SELECT b.cohort_month,
-    Date_trunc(o.created_at,month) AS order_month,
-    COUNT(DISTINCT o.user_id) AS active_users
-  FROM b
-  JOIN bigquery-public-data.thelook_ecommerce.orders o ON b.user_id = o.user_id
-  GROUP BY b.cohort_month, order_month
-  ORDER BY cohort_month, order_month
+retention as (
+  select b.cohort_month,
+    date_trunc(a.tg,month) as order_month,
+    count(distinct a.user_id) as active_users
+  from b
+  join a on b.user_id = a.user_id
+  group by b.cohort_month, order_month
+  order by cohort_month, order_month
 )
 
--- Step 4: Pivot the results to create a retention table
-SELECT
-  cohort_month,
-  SUM(CASE WHEN order_month = cohort_month THEN active_users ELSE 0 END) AS month_0,
-  SUM(CASE WHEN order_month in (select DATE_ADD(cohort_month, INTERVAL 1 MONTH) from retention) THEN active_users ELSE 0 END) AS month_1,
-  SUM(CASE WHEN order_month in (select DATE_ADD(cohort_month, INTERVAL 2 MONTH) from retention) THEN active_users ELSE 0 END) AS month_2,
-  SUM(CASE WHEN order_month = DATE_ADD(cohort_month, INTERVAL 3 MONTH) THEN active_users ELSE 0 END) AS month_3
-FROM
-  retention
-GROUP BY
-  cohort_month
-ORDER BY
-  cohort_month;
+select
+  format_date('%E4Y-%m', cohort_month) as Month,
+  sum(case when order_month = cohort_month then active_users else 0 end) as m0,
+  sum(case when order_month = date_add(cohort_month, interval 1 MONTH) then active_users else 0 end) as m1,
+  sum(case when order_month = date_add(cohort_month, interval 2 MONTH) then active_users else 0 end) as m2,
+  sum(case when order_month = date_add(cohort_month, interval 3 MONTH) then active_users else 0 end) as m3
+from retention
+group by Month
+order by Month;
