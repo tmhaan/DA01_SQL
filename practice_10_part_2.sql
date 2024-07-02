@@ -27,6 +27,12 @@ Select Month, Year, Product_category,
 
 
 ---creating the metrics for customer retention cohort chart 
+--- sau khi phân tích bảng Cohort, ta có thể nhận ra được nhiều vấn đề mà công ty đang gặp phải: 
+--- mặc dù có số lượng khách hàng mới càng ngày càng tăng, tuy nhiên tỷ lệ quay lại của những khách hàng này trong 3 tháng lại rất thấp
+--- điều này cho thấy là công ty còn yếu trong việc duy trì sự tương tác của khách hàng, kh thể tạo đc loyalty in customer
+--- vì vậy, công ty cần phải mở những chiến dịch marketing, promotion, discount khuyến khích những khách hàng cũ quay lại với cửa hàng
+--- ngoài ra, công ty cũng cần liên tục phân tích cohort định kỳ đều đặn (hàng tháng, hàng tuần, hàng kỳ) để ko bị lost information
+  
 with a as (
      select user_id, date(created_at) as tg
      from bigquery-public-data.thelook_ecommerce.orders
